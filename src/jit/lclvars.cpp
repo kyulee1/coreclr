@@ -4731,24 +4731,24 @@ void Compiler::lvaAssignVirtualFrameOffsetsToLocals()
     // If the frame pointer is used, then we'll save FP/LR at the bottom of the stack.
     // Otherwise, we won't store FP, and we'll store LR at the top, with the other callee-save
     // registers (if any).
+
     int initialStkOffs = 0;
+    if (info.compIsVarArgs)
+    {
+        initialStkOffs = MAX_REG_ARG * REGSIZE_BYTES;
+        stkOffs -= initialStkOffs;
+    }
+
     if (isFramePointerUsed())
     {
         // Subtract off FP and LR.
         assert(compCalleeRegsPushed >= 2);
-        initialStkOffs = (compCalleeRegsPushed - 2) * REGSIZE_BYTES;
+        stkOffs -= (compCalleeRegsPushed - 2) * REGSIZE_BYTES;
     }
     else
     {
-        initialStkOffs = compCalleeRegsPushed * REGSIZE_BYTES;
+        stkOffs -= compCalleeRegsPushed * REGSIZE_BYTES;
     }
-
-    if (info.compIsVarArgs)
-    {
-        initialStkOffs += MAX_REG_ARG * REGSIZE_BYTES;
-    }
-
-    stkOffs -= initialStkOffs;
 
 #else // !_TARGET_ARM64_
     stkOffs -= compCalleeRegsPushed * REGSIZE_BYTES;
