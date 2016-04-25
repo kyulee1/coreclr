@@ -245,7 +245,6 @@ void JitTls::SetCompiler(Compiler* compiler)
 // The main JIT function for the 32 bit JIT.  See code:ICorJitCompiler#EEToJitInterface for more on the EE-JIT
 // interface. Things really don't get going inside the JIT until the code:Compiler::compCompile#Phases
 // method.  Usually that is where you want to go. 
-
 CorJitResult CILJit::compileMethod (
             ICorJitInfo*       compHnd,
             CORINFO_METHOD_INFO* methodInfo,
