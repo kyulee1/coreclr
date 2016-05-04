@@ -5624,8 +5624,8 @@ var_types           Compiler::impImportCall (OPCODE         opcode,
 #ifdef _TARGET_ARM64_
     // Don't do opportunistic tail calls in ARM64 for now.
     // TODO-ARM64-NYI:  Get this to work.
-    canTailCall = false;
-    szCanTailCallFailReason = "Arm64.";
+    //canTailCall = false;
+    //szCanTailCallFailReason = "Arm64.";
 #endif // _TARGET_ARM64_
 
     // We only need to cast the return value of pinvoke inlined calls that return small types

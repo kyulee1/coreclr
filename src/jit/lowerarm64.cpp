@@ -527,7 +527,7 @@ void Lowering::TreeNodeInfoInit(GenTree* stmt)
                         // Fast tail call - make sure that call target is always computed in IP0
                         // so that epilog sequence can generate "br xip0" to achieve fast tail call.
                         
-                        NYI_ARM64("Lower - Fast tail call");
+                        //NYI_ARM64("Lower - Fast tail call");
 
                         ctrlExpr->gtLsraInfo.setSrcCandidates(l, genRegMask(REG_IP0));  // ip0?
                     }
@@ -639,7 +639,11 @@ void Lowering::TreeNodeInfoInit(GenTree* stmt)
                         }
                         else
                         {
-                            noway_assert(!"Unsupported TYP_STRUCT arg kind");
+                            //noway_assert(!"Unsupported TYP_STRUCT arg kind");
+                            info->srcCount++;
+                            argMask |= genRegMask(argReg);
+                            argNode->gtLsraInfo.setDstCandidates(l, argMask);
+                            argNode->gtLsraInfo.setSrcCandidates(l, argMask);
                         }
 
                         unsigned  slots   = ((unsigned)(roundUp(originalSize, REGSIZE_BYTES))) / REGSIZE_BYTES;

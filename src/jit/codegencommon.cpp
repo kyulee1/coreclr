@@ -9497,11 +9497,23 @@ void                CodeGen::genFnEpilog(BasicBlock* block)
         // figure out what jump we have
         GenTreePtr jmpStmt = block->lastTopLevelStmt();
         noway_assert(jmpStmt && (jmpStmt->gtOper == GT_STMT));
-
+#if !FEATURE_FASTTAILCALL
         noway_assert(jmpStmt->gtNext == nullptr);
         GenTreePtr jmpNode = jmpStmt->gtStmt.gtStmtExpr;
         noway_assert(jmpNode->gtOper == GT_JMP);
+#else
+        // arm64
+        // If jmpNode is GT_JMP then gtNext must be null.
+        // If jmpNode is a fast tail call, gtNext need not be null since it could have embedded stmts.
+        GenTreePtr jmpNode = jmpStmt->gtStmt.gtStmtExpr;
+        noway_assert((jmpNode->gtOper != GT_JMP) || (jmpStmt->gtNext == nullptr));
 
+        // Could either be a "jmp method" or "fast tail call" implemented as epilog+jmp
+        noway_assert((jmpNode->gtOper == GT_JMP) || ((jmpNode->gtOper == GT_CALL) && jmpNode->AsCall()->IsFastTailCall()));
+
+        // The next block is associated with this "if" stmt
+        if (jmpNode->gtOper == GT_JMP)
+#endif
         {
             // Simply emit a jump to the methodHnd. This is similar to a call so we can use
             // the same descriptor with some minor adjustments.
@@ -9530,6 +9542,17 @@ void                CodeGen::genFnEpilog(BasicBlock* block)
                 BAD_IL_OFFSET, REG_NA, REG_NA, 0, 0, /* iloffset, ireg, xreg, xmul, disp */
                 true);                     /* isJump */
         }
+#if FEATURE_FASTTAILCALL
+        else
+        {
+
+            // Fast tail call.
+            // Call target = RAX.
+            // Stack walker requires that a register indirect tail call be rex.w prefixed.
+            // todo,, kyulee setup r0 where?
+            getEmitter()->emitIns_R(INS_br, emitTypeSize(TYP_I_IMPL), REG_IP0);
+        }
+#endif //FEATURE_FASTTAILCALL
     }
     else
     {

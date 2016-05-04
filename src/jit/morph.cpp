@@ -6238,8 +6238,9 @@ bool                Compiler::fgCanFastTailCall(GenTreeCall* callee)
 #endif // defined(FEATURE_UNIX_AMD64_STRUCT_PASSING)
 
 #else
-                assert(!"Target platform ABI rules regarding passing struct type args in registers");
-                unreached();
+                hasMultiByteArgs = true;
+                //assert(!"Target platform ABI rules regarding passing struct type args in registers");
+                //unreached();
 #endif //_TARGET_AMD64_
 
             }
@@ -6961,6 +6962,10 @@ GenTreePtr          Compiler::fgMorphCall(GenTreeCall* call)
                     // args. For more details see fgMorphTailCall() and CreateTailCallCopyArgsThunk()
                     // in Stublinkerx86.cpp.
                     szFailReason = "Method with non-standard args passed in callee trash register cannot be tail called via helper";
+                }
+                else
+                {
+                    szFailReason = "Not forming valid tail call";
                 }
 #endif //LEGACY_BACKEND
             }
@@ -14146,6 +14151,7 @@ void                Compiler::fgMorphStmts(BasicBlock * block,
             // Could either be 
             //   - a tail call dispatched via helper in which case block will be ending with BBJ_THROW or
             //   - a fast call made as jmp in which case block will be ending with BBJ_RETURN and marked as containing a jmp.
+            printf(" helper %d fasttail %d jumpkind %d throw %d retur %d bbflags %d\n", call->IsTailCallViaHelper(), call->IsFastTailCall(), compCurBB->bbJumpKind, BBJ_THROW, BBJ_RETURN, compCurBB->bbFlags &  BBF_HAS_JMP);
             noway_assert((call->IsTailCallViaHelper() && (compCurBB->bbJumpKind == BBJ_THROW)) || 
                          (call->IsFastTailCall() && (compCurBB->bbJumpKind == BBJ_RETURN) && (compCurBB->bbFlags &  BBF_HAS_JMP)));
         }
