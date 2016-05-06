@@ -201,6 +201,21 @@ void Lowering::TreeNodeInfoInit(GenTree* stmt)
         case GT_CNS_DBL:
             info->srcCount = 0;
             info->dstCount = 1;
+            {
+                GenTreeDblCon *dblConst = tree->AsDblCon();
+                double constValue = dblConst->gtDblCon.gtDconVal;
+
+                // Make sure we use "movi reg, 0x00"  only for positive zero (0.0) and not for negative zero (-0.0)
+                if (emitter::emitIns_valid_imm_for_fmov(constValue))
+                {
+                    // Directly encode constant to instructions.
+                }
+                else
+                {
+                    // Reserve int to load constatnt from memory (IF_LARGELDC)
+                    info->internalIntCount = 1;
+                }
+            }
             break;
 
         case GT_QMARK:
