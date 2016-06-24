@@ -4823,7 +4823,7 @@ void Compiler::fgValueNumberBlockAssignment(GenTreePtr tree, bool evalAsgLhsInd)
                 }
 
                 ValueNumPair newRhsVNPair;
-                if (lhsFldSeq != nullptr && isEntire)
+                if ((lhsFldSeq != nullptr && isEntire) || (lhsFldSeq == FieldSeqStore::NotAField()))
                 {
                     // This can occur in for structs with one field, itself of a struct type.
                     // We won't promote these.
