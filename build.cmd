@@ -1,6 +1,6 @@
 @if not defined __echo @echo off
 setlocal EnableDelayedExpansion EnableExtensions
-
+rem test
 set __ThisScriptShort=%0
 set __ThisScriptFull="%~f0"
 set __ThisScriptPath="%~dp0"
